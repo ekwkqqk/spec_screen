@@ -41,6 +41,8 @@ export interface Screen {
   version: string;
   description: string;
   image: ScreenImage | null;
+  /** 번호 마커 표시 크기(px). 기본 24 */
+  markerSize: number;
   items: ScreenItem[];
   history: HistoryEntry[];
   createdAt: string;

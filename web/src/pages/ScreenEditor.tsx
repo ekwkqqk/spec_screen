@@ -7,7 +7,14 @@ import ItemEditor from '../components/ItemEditor';
 import HistoryTable from '../components/HistoryTable';
 import Modal from '../components/Modal';
 import { useUser } from '../user';
-import type { Screen, ScreenItem } from '../types';
+import {
+  DEFAULT_MARKER_SIZE,
+  MARKER_SIZE_MAX,
+  MARKER_SIZE_MIN,
+  clampMarkerSize,
+  type Screen,
+  type ScreenItem,
+} from '../types';
 import { bumpVersion, formatDateTime, imageSize, newId, today } from '../util';
 
 const renumber = (items: ScreenItem[]) => items.map((it, i) => ({ ...it, no: i + 1 }));
@@ -36,8 +43,10 @@ export default function ScreenEditor() {
   const load = useCallback(async () => {
     try {
       const s = await api.getScreen(pid, sid);
-      setBase(s);
-      setDraft(structuredClone(s));
+      // 예전 데이터에 markerSize가 없어도 기본값으로 맞춰 dirty가 바로 켜지지 않게 한다
+      const normalized = { ...s, markerSize: clampMarkerSize(s.markerSize) };
+      setBase(normalized);
+      setDraft(structuredClone(normalized));
       setLoadError('');
     } catch (e) {
       setLoadError(errorMessage(e));
@@ -189,11 +198,23 @@ export default function ScreenEditor() {
           {draft.image ? (
             <>
               <div className="image-toolbar">
-                <span className="muted small-text">
+                <span className="hint muted small-text">
                   {placingId
                     ? '이미지에서 마커 위치를 클릭하세요 (Esc 취소)'
                     : '이미지 클릭: 마커 추가 · 마커 드래그: 이동 · Ctrl+V/드롭: 이미지 교체'}
                 </span>
+                <label className="marker-size-control" title="번호 마커 크기">
+                  마커
+                  <input
+                    type="range"
+                    min={MARKER_SIZE_MIN}
+                    max={MARKER_SIZE_MAX}
+                    step={1}
+                    value={clampMarkerSize(draft.markerSize)}
+                    onChange={(e) => patch({ markerSize: Number(e.target.value) })}
+                  />
+                  <span className="size-val">{clampMarkerSize(draft.markerSize)}</span>
+                </label>
                 <button className="btn small" onClick={() => fileInput.current?.click()}>
                   이미지 교체
                 </button>
@@ -207,6 +228,7 @@ export default function ScreenEditor() {
               <ImageMarkerCanvas
                 src={imageUrl(pid, draft.image.file)}
                 items={draft.items}
+                markerSize={clampMarkerSize(draft.markerSize ?? DEFAULT_MARKER_SIZE)}
                 hoverId={hoverId}
                 onHover={setHoverId}
                 editable

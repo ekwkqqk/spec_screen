@@ -26,6 +26,11 @@ const str = (v: unknown, max: number) => (typeof v === 'string' ? v.slice(0, max
 const ratio = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : null);
 const size = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? Math.round(v) : 0);
 const id = (v: unknown) => (typeof v === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(v) ? v : newId());
+const DEFAULT_MARKER_SIZE = 24;
+const markerSize = (v: unknown) => {
+  const n = typeof v === 'number' && Number.isFinite(v) ? Math.round(v) : DEFAULT_MARKER_SIZE;
+  return Math.min(48, Math.max(14, n));
+};
 
 function sanitizeImage(v: unknown): ScreenImage | null {
   const o = obj(v);
@@ -68,6 +73,7 @@ function sanitizeScreen(input: unknown, cur: Screen): Screen {
     version: str(i.version, 30),
     description: str(i.description, 10000),
     image: sanitizeImage(i.image),
+    markerSize: markerSize(i.markerSize),
     items,
     history,
   };
@@ -118,6 +124,7 @@ r.post('/', async (req, res) => {
     version: '1.0',
     description: '',
     image: null,
+    markerSize: DEFAULT_MARKER_SIZE,
     items: [],
     history: [{ id: newId(), version: '1.0', date: today(), by, summary: '최초 작성' }],
     createdAt: now,

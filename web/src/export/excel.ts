@@ -1,6 +1,6 @@
 import type { Anchor, Borders, Fill, Font, Worksheet } from 'exceljs';
 import { imageUrl } from '../api';
-import type { ProjectExport, Screen } from '../types';
+import { DEFAULT_MARKER_SIZE, type ProjectExport, type Screen } from '../types';
 import { formatDateTime, today } from '../util';
 
 const FONT: Partial<Font> = { name: '맑은 고딕', size: 10 };
@@ -55,7 +55,11 @@ async function markedImage(src: string, screen: Screen): Promise<{ dataUrl: stri
   const ctx = canvas.getContext('2d')!;
   ctx.drawImage(img, 0, 0, width, height);
 
-  const r = Math.max(11, Math.round(width / 70));
+  // 화면에서 설정한 마커 크기(기본 24px)를 엑셀 합성 이미지에도 반영한다
+  const sizeScale =
+    (typeof screen.markerSize === 'number' && screen.markerSize > 0 ? screen.markerSize : DEFAULT_MARKER_SIZE) /
+    DEFAULT_MARKER_SIZE;
+  const r = Math.max(8, Math.round(Math.max(11, Math.round(width / 70)) * sizeScale));
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.font = `bold ${Math.round(r * 1.05)}px "Malgun Gothic", sans-serif`;

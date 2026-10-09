@@ -6,6 +6,7 @@ import ImageMarkerCanvas from '../components/ImageMarkerCanvas';
 import ItemTable from '../components/ItemTable';
 import HistoryTable from '../components/HistoryTable';
 import ScreenInfoTable from '../components/ScreenInfoTable';
+import { clampMarkerSize } from '../types';
 
 export default function ScreenView() {
   const { pid = '', sid = '' } = useParams();
@@ -44,6 +45,7 @@ export default function ScreenView() {
             <ImageMarkerCanvas
               src={imageUrl(pid, s.image.file)}
               items={s.items}
+              markerSize={clampMarkerSize(s.markerSize)}
               hoverId={hoverId}
               onHover={setHoverId}
               onMarkerClick={(id) => document.getElementById(`item-${id}`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })}

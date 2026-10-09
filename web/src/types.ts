@@ -46,11 +46,22 @@ export interface Screen {
   version: string;
   description: string;
   image: ScreenImage | null;
+  /** 번호 마커 표시 크기(px). 기본 24 */
+  markerSize: number;
   items: ScreenItem[];
   history: HistoryEntry[];
   createdAt: string;
   updatedAt: string;
   updatedBy: string;
+}
+
+export const DEFAULT_MARKER_SIZE = 24;
+export const MARKER_SIZE_MIN = 14;
+export const MARKER_SIZE_MAX = 48;
+
+export function clampMarkerSize(v: unknown): number {
+  const n = typeof v === 'number' && Number.isFinite(v) ? Math.round(v) : DEFAULT_MARKER_SIZE;
+  return Math.min(MARKER_SIZE_MAX, Math.max(MARKER_SIZE_MIN, n));
 }
 
 export interface ScreenSummary {

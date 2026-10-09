@@ -1,11 +1,13 @@
 import { useRef } from 'react';
-import type { ScreenItem } from '../types';
+import { DEFAULT_MARKER_SIZE, type ScreenItem } from '../types';
 
 interface Props {
   src: string;
   items: ScreenItem[];
   hoverId: string | null;
   onHover: (id: string | null) => void;
+  /** 마커 표시 크기(px). 기본 24 */
+  markerSize?: number;
   /** true면 이미지를 클릭해 마커를 찍고 드래그로 옮길 수 있다 */
   editable?: boolean;
   /** 특정 행의 마커 위치를 지정하는 중인지 (커서 모양만 바뀜) */
@@ -22,6 +24,7 @@ export default function ImageMarkerCanvas({
   items,
   hoverId,
   onHover,
+  markerSize = DEFAULT_MARKER_SIZE,
   editable,
   placing,
   onImageClick,
@@ -38,7 +41,11 @@ export default function ImageMarkerCanvas({
   };
 
   return (
-    <div ref={ref} className={`canvas${editable ? ' editable' : ''}${placing ? ' placing' : ''}`}>
+    <div
+      ref={ref}
+      className={`canvas${editable ? ' editable' : ''}${placing ? ' placing' : ''}`}
+      style={{ ['--marker-size' as string]: `${markerSize}px` }}
+    >
       <img
         src={src}
         alt="화면 이미지"
